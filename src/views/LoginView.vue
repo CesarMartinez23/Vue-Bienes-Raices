@@ -1,4 +1,16 @@
-<script setup></script>
+<script setup>
+import { useForm, useField } from "vee-validate";
+import { loginSchema } from "../validation/loginSchema";
+
+const { handleSubmit } = useForm({ validationSchema: loginSchema });
+
+const email = useField("email");
+const password = useField("password");
+
+const submit = handleSubmit(() => {
+  console.log("Submitted!");
+});
+</script>
 
 <template>
   <v-card flat max-width="600" class="mx-auto my-10">
@@ -14,6 +26,8 @@
         label="Correo Electronico"
         bg-color="blue-grey-lighten-5"
         hint="Ej. example@example.com"
+        v-model="email.value.value"
+        :error-messages="email.errorMessage.value"
       />
 
       <v-text-field
@@ -22,9 +36,13 @@
         bg-color="blue-grey-lighten-5"
         hint="Ej. MySecuredPassword@123"
         class="mt-2"
+        v-model="password.value.value"
+        :error-messages="password.errorMessage.value"
       />
 
-      <v-btn block color="pink-accent-3 mt-3">Iniciar Sesi&oacute;n</v-btn>
+      <v-btn block color="pink-accent-3 mt-3" @click="submit"
+        >Iniciar Sesi&oacute;n</v-btn
+      >
     </v-form>
   </v-card>
 </template>
