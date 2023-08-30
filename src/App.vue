@@ -18,7 +18,7 @@ const auth = useAuthStore();
         <template v-slot:append>
           <div v-if="auth.isAuth">
             <v-btn :to="{ name: 'admin-propiedades' }">Admin</v-btn>
-            <v-btn>Cerrar Sesi&oacute;n</v-btn>
+            <v-btn @click="auth.logout">Cerrar Sesi&oacute;n</v-btn>
           </div>
           <div v-else>
             <v-btn :to="{ name: 'home' }">Inicio</v-btn>
