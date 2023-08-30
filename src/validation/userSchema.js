@@ -1,4 +1,4 @@
-export const loginSchema = {
+export const userSchema = {
   email(value) {
     if (!value) {
       return 'El correo es obligatorio';

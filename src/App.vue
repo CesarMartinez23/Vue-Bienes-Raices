@@ -12,7 +12,6 @@ import { RouterLink, RouterView } from "vue-router";
         <template v-slot:append>
           <v-btn :to="{ name: 'home' }">Inicio</v-btn>
           <v-btn :to="{ name: 'login' }">Iniciar Sesi&oacute;n</v-btn>
-          <v-btn :to="{ name: 'register' }">Registrate</v-btn>
         </template>
       </v-app-bar>
       <v-main>

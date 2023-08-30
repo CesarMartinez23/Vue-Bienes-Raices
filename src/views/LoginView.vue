@@ -1,8 +1,8 @@
 <script setup>
 import { useForm, useField } from "vee-validate";
-import { loginSchema } from "../validation/loginSchema";
+import { userSchema } from "../validation/userSchema";
 
-const { handleSubmit } = useForm({ validationSchema: loginSchema });
+const { handleSubmit } = useForm({ validationSchema: userSchema });
 
 const email = useField("email");
 const password = useField("password");
