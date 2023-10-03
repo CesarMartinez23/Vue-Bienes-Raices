@@ -1,5 +1,179 @@
-<script setup></script>
+<script setup>
+import { watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useFirestore, useDocument } from "vuefire";
+import { doc, updateDoc } from "firebase/firestore";
+
+import { useField, useForm } from "vee-validate";
+import useImage from "@/composables/useImage";
+import { validationSchema } from "@/validation/propiedadSchema";
+
+const items = [1, 2, 3, 4, 5, 6];
+
+const { url, uploadImage, image } = useImage();
+
+const { handleSubmit } = useForm({ validationSchema });
+
+const titulo = useField("titulo");
+const imagen = useField("imagen");
+const precio = useField("precio");
+const habitaciones = useField("habitaciones");
+const inodoros = useField("inodoros");
+const estacionamiento = useField("estacionamiento");
+const descripcion = useField("descripcion");
+
+const pscina = useField("pscina");
+const jardin = useField("jardin");
+const terraza = useField("terraza");
+const gym = useField("gym");
+
+const route = useRoute();
+const router = useRouter();
+
+// Obtener la propiedad a editar.
+const db = useFirestore();
+const docRef = doc(db, "propiedades", route.params.id);
+const propiedad = useDocument(docRef);
+
+watch(propiedad, (propiedad) => {
+  titulo.value.value = propiedad.titulo;
+  precio.value.value = propiedad.precio;
+  habitaciones.value.value = propiedad.habitaciones;
+  inodoros.value.value = propiedad.inodoros;
+  estacionamiento.value.value = propiedad.estacionamiento;
+  descripcion.value.value = propiedad.descripcion;
+
+  pscina.value.value = propiedad.pscina;
+  jardin.value.value = propiedad.jardin;
+  terraza.value.value = propiedad.terraza;
+  gym.value.value = propiedad.gym;
+});
+
+const submit = handleSubmit(async (values) => {
+  const { imagen, ...propiedad } = values;
+
+  if (image.value) {
+    const data = {
+      ...propiedad,
+      imagen: url.value,
+    };
+    await updateDoc(docRef, data);
+  } else {
+    const data = {
+      ...propiedad,
+    };
+    await updateDoc(docRef, data);
+  }
+  router.push({ name: "admin-propiedades" });
+});
+</script>
 
 <template>
-  <h2 class="text-center text-h3 my-5 font-weight-bold">Editar Propiedad</h2>
+  <v-card max-width="800" flat class="mx-auto my-10">
+    <v-card-title class="mt-5">
+      <h1 class="text-h4 font-weight-bold">Editar Propiedad</h1>
+    </v-card-title>
+    <v-card-subtitle>
+      <p class="text-h5">Edita los detalles de la propiedad</p>
+    </v-card-subtitle>
+
+    <v-form class="mt-10">
+      <v-text-field
+        v-model="titulo.value.value"
+        :error-messages="titulo.errorMessage.value"
+        label="Titulo"
+        class="mb-5"
+      />
+
+      <v-file-input
+        v-model="imagen.value.value"
+        :error-messages="imagen.errorMessage.value"
+        accept="image/jpeg"
+        prepend-icon="mdi-camera"
+        label="Fotografía"
+        class="mb-5"
+        @change="uploadImage"
+      />
+
+      <div class="my-5">
+        <p class="font-weight-bold">Imagen Actual:</p>
+
+        <img v-if="image" :src="image" class="w-50" />
+        <img v-else :src="propiedad?.imagen" class="w-50" />
+      </div>
+
+      <v-text-field
+        v-model="precio.value.value"
+        :error-messages="precio.errorMessage.value"
+        label="Precio"
+        class="mb-5"
+      />
+
+      <v-row>
+        <v-col cols="12" md="4">
+          <v-select
+            label="Habitaciones"
+            class="mb-5"
+            :items="items"
+            v-model="habitaciones.value.value"
+            :error-messages="habitaciones.errorMessage.value"
+          />
+        </v-col>
+
+        <v-col cols="12" md="4">
+          <v-select
+            label="Baños"
+            class="mb-5"
+            :items="items"
+            v-model="inodoros.value.value"
+            :error-messages="inodoros.errorMessage.value"
+          />
+        </v-col>
+
+        <v-col cols="12" md="4">
+          <v-select
+            label="Lugares Estacionamiento"
+            class="mb-5"
+            :items="items"
+            v-model="estacionamiento.value.value"
+            :error-messages="estacionamiento.errorMessage.value"
+          />
+        </v-col>
+      </v-row>
+
+      <v-textarea
+        v-model="descripcion.value.value"
+        :error-messages="descripcion.errorMessage.value"
+        label="Descripción"
+        class="mb-5"
+      />
+
+      <v-row class="px-3">
+        <v-checkbox
+          label="Pscina"
+          v-model="pscina.value.value"
+          :error-messages="pscina.errorMessage.value"
+        />
+        <v-checkbox
+          label="Jardin"
+          v-model="jardin.value.value"
+          :error-messages="jardin.errorMessage.value"
+        />
+        <v-checkbox
+          label="Terraza"
+          v-model="terraza.value.value"
+          :error-messages="terraza.errorMessage.value"
+        />
+        <v-checkbox
+          label="GYM"
+          v-model="gym.value.value"
+          :error-messages="gym.errorMessage.value"
+        />
+      </v-row>
+
+      <v-btn color="pink-accent-3" block @click="submit">
+        Guardar Cambios
+      </v-btn>
+    </v-form>
+  </v-card>
 </template>
