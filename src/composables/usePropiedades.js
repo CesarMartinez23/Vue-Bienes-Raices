@@ -1,6 +1,7 @@
 import { computed, ref } from "vue"
-import { collection } from "firebase/firestore"
-import { useFirestore, useCollection } from "vuefire"
+import { collection, doc, deleteDoc } from "firebase/firestore"
+import { ref as storageRef, deleteObject } from "firebase/storage"
+import { useFirestore, useCollection, useFirebaseStorage } from "vuefire"
 
 export default function usePropiedades() {
 
@@ -9,18 +10,21 @@ export default function usePropiedades() {
   const terraza = ref(false)
   const gym = ref(false)
 
+  const storage = useFirebaseStorage()
   const db = useFirestore()
+
   const propiedadesCollection = useCollection(collection(db, "propiedades"))
 
-  const filtrarPropiedades = (plus) => {
-    return propiedadesCollection.value.filter(propiedad => propiedad.plus)
-  }
+  async function eliminarPropiedad(id, urlImage) {
 
-  // const propiedadesFiltradas = computed(() => {
-  //   return pscina.value ?
-  //     propiedadesCollection.value.filter(propiedad => propiedad.pscina) :
-  //     propiedadesCollection.value
-  // })
+    const docRef = doc(db, "propiedades", id)
+    const imageRef = storageRef(storage, urlImage)
+
+    await Promise.all([
+      deleteDoc(docRef),
+      deleteObject(imageRef)
+    ])
+  }
 
   const propiedadesFiltradas = computed(() => {
 
@@ -34,7 +38,6 @@ export default function usePropiedades() {
     return propiedades
   })
 
-
   return {
     pscina,
     jardin,
@@ -42,5 +45,6 @@ export default function usePropiedades() {
     gym,
     propiedadesCollection,
     propiedadesFiltradas,
+    eliminarPropiedad,
   }
 }
