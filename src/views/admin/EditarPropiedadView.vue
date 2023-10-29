@@ -5,12 +5,16 @@ import { useFirestore, useDocument } from "vuefire";
 import { doc, updateDoc } from "firebase/firestore";
 
 import { useField, useForm } from "vee-validate";
+import "leaflet/dist/leaflet.css";
+import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet";
 import useImage from "@/composables/useImage";
+import useLocationMap from "@/composables/useLocationMap";
 import { validationSchema } from "@/validation/propiedadSchema";
 
 const items = [1, 2, 3, 4, 5, 6];
 
 const { url, uploadImage, image } = useImage();
+const { zoom, center, pin } = useLocationMap();
 
 const { handleSubmit } = useForm({ validationSchema });
 
@@ -47,6 +51,7 @@ watch(propiedad, (propiedad) => {
   jardin.value.value = propiedad.jardin;
   terraza.value.value = propiedad.terraza;
   gym.value.value = propiedad.gym;
+  center.value = propiedad.ubicacion;
 });
 
 const submit = handleSubmit(async (values) => {
@@ -56,11 +61,13 @@ const submit = handleSubmit(async (values) => {
     const data = {
       ...propiedad,
       imagen: url.value,
+      ubicacion: center.value,
     };
     await updateDoc(docRef, data);
   } else {
     const data = {
       ...propiedad,
+      ubicacion: center.value,
     };
     await updateDoc(docRef, data);
   }
@@ -170,6 +177,22 @@ const submit = handleSubmit(async (values) => {
           :error-messages="gym.errorMessage.value"
         />
       </v-row>
+
+      <h2 class="font-weight-bold text-center my-5">Ubicaci&oacute;n</h2>
+      <div class="pb-10">
+        <div style="height: 600px">
+          <LMap
+            v-model:zoom="zoom"
+            :center="center"
+            :use-global-leaflet="false"
+          >
+            <LMarker :lat-lng="center" draggable @moveend="pin" />
+            <LTileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            ></LTileLayer>
+          </LMap>
+        </div>
+      </div>
 
       <v-btn color="pink-accent-3" block @click="submit">
         Guardar Cambios

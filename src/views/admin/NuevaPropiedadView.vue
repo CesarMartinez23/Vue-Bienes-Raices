@@ -8,10 +8,14 @@ import {
   imageSchema,
 } from "../../validation/propiedadSchema";
 import useImage from "../../composables/useImage";
+import useLocationMap from "../../composables/useLocationMap";
+import "leaflet/dist/leaflet.css";
+import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet";
 
 const items = [1, 2, 3, 4, 5, 6];
 
 const { url, uploadImage, image } = useImage();
+const { zoom, center, pin } = useLocationMap();
 
 const router = useRouter();
 
@@ -43,6 +47,7 @@ const onSubmit = handleSubmit(async (values) => {
   const docRef = await addDoc(collection(db, "propiedades"), {
     ...propiedad,
     imagen: url.value,
+    ubicacion: center.value,
   });
 
   if (docRef.id) {
@@ -149,6 +154,22 @@ const onSubmit = handleSubmit(async (values) => {
           :error-messages="gym.errorMessage.value"
         />
       </v-row>
+
+      <h2 class="font-weight-bold text-center my-5">Ubicaci&oacute;n</h2>
+      <div class="pb-10">
+        <div style="height: 600px">
+          <LMap
+            v-model:zoom="zoom"
+            :center="center"
+            :use-global-leaflet="false"
+          >
+            <LMarker :lat-lng="center" draggable @moveend="pin" />
+            <LTileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            ></LTileLayer>
+          </LMap>
+        </div>
+      </div>
 
       <v-btn color="pink-accent-3" block class="mt-5" @click="onSubmit"
         >Agregar Propiedad</v-btn
