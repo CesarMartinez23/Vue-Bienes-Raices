@@ -14,6 +14,7 @@ const auth = useAuthStore();
       <v-app-bar color="blue-darken-1">
         <template v-slot:prepend>
           <v-btn :to="{ name: 'home' }">INMOMAC - EL SALVADOR</v-btn>
+          <v-btn :to="{ name: 'faqs' }">FAQs</v-btn>
         </template>
         <template v-slot:append>
           <div v-if="auth.isAuth">
